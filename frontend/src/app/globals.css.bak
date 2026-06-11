@@ -1,0 +1,25 @@
+@import "tailwindcss";
+
+:root {
+  --background: #1c4a39;
+  --foreground: #fafbbe;
+  
+  --color-grove-green: #1c4a39;
+  --color-grove-yellow: #fafbbe;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-grove-green: var(--color-grove-green);
+  --color-grove-yellow: var(--color-grove-yellow);
+  --font-sans: var(--font-inter);
+  --font-serif: var(--font-playfair);
+  --font-mono: var(--font-geist-mono);
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans), sans-serif;
+}
