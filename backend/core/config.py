@@ -21,6 +21,12 @@ class Settings(BaseSettings):
     # ── Upstash Redis ────────────────────────────────────
     UPSTASH_REDIS_URL: str = ""
     UPSTASH_REDIS_TOKEN: str = ""
+    REDIS_TTL_SECONDS: int = 3600  # 1 hour default cache TTL
+
+    # ── Clerk Auth ───────────────────────────────────────
+    CLERK_JWKS_URL: str = ""       # e.g. https://<your-clerk>.clerk.accounts.dev/.well-known/jwks.json
+    CLERK_ISSUER: str = ""         # e.g. https://<your-clerk>.clerk.accounts.dev
+    CLERK_AUDIENCE: str = ""       # optional audience claim
 
     # ── CORS ─────────────────────────────────────────────
     FRONTEND_URL: str = "http://localhost:3000"
