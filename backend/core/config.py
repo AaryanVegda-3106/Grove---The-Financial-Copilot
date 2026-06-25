@@ -16,7 +16,8 @@ class Settings(BaseSettings):
 
     # ── NVIDIA NIM / LiteLLM ─────────────────────────────
     NVIDIA_NIM_API_KEY: str = ""
-    LITELLM_MODEL: str = "nvidia_nim/meta/llama-3.1-8b-instruct"
+    LITELLM_MODEL_FAST: str = "nvidia_nim/nvidia/llama-3.1-nemotron-nano-8b-v1"
+    LITELLM_MODEL_STRONG: str = "nvidia_nim/nvidia/llama-3.1-nemotron-70b-instruct"
 
     # ── Upstash Redis ────────────────────────────────────
     UPSTASH_REDIS_URL: str = ""

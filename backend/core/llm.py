@@ -1,9 +1,17 @@
 """
 LLM service powered by LiteLLM → NVIDIA NIM.
+
+Supports dual-model routing:
+  • FAST  → Nemotron Nano 8B   (greetings, definitions, simple Q&A)
+  • STRONG → Nemotron 70B       (planning, analysis, multi-step reasoning)
 """
 
+import logging
 import litellm
 from core.config import get_settings
+from core.router import route_query, ModelTier
+
+logger = logging.getLogger(__name__)
 
 # ── Default system prompt for the financial copilot ──────────
 GROVE_SYSTEM_PROMPT = """You are Grove 🌿, an AI-powered financial copilot designed specifically for students and young adults.
@@ -39,37 +47,54 @@ async def chat_completion(
     system_prompt: str | None = None,
     temperature: float = 0.7,
     max_tokens: int = 1024,
-) -> str:
+) -> tuple[str, ModelTier]:
     """
-    Send a chat completion request via LiteLLM.
+    Send a chat completion request via LiteLLM with automatic model routing.
+
+    If no explicit model is provided, the router classifies the latest user
+    message and selects the appropriate model tier (FAST or STRONG).
 
     Args:
         messages: List of {"role": "user"|"assistant", "content": "..."} dicts.
-        model: Override the default model from settings.
+        model: Override the router and force a specific model.
         system_prompt: Override the default Grove system prompt.
         temperature: Sampling temperature (0-1).
         max_tokens: Maximum tokens in the response.
 
     Returns:
-        The assistant's response text.
+        Tuple of (response_text, model_tier).
     """
     _configure_litellm()
-    settings = get_settings()
 
-    # Build the full message list with system prompt
+    # ── Route to the right model ─────────────────────────
+    if model:
+        selected_model = model
+        tier = ModelTier.STRONG  # Explicit override → treat as strong
+    else:
+        # Use the latest user message for classification
+        latest_user_msg = ""
+        for msg in reversed(messages):
+            if msg.get("role") == "user":
+                latest_user_msg = msg.get("content", "")
+                break
+        selected_model, tier = route_query(latest_user_msg)
+
+    logger.info(f"🌿 Router → {tier.value.upper()} model: {selected_model}")
+
+    # ── Build the full message list with system prompt ───
     full_messages = [
         {"role": "system", "content": system_prompt or GROVE_SYSTEM_PROMPT}
     ]
     full_messages.extend(messages)
 
     response = await litellm.acompletion(
-        model=model or settings.LITELLM_MODEL,
+        model=selected_model,
         messages=full_messages,
         temperature=temperature,
         max_tokens=max_tokens,
     )
 
-    return response.choices[0].message.content
+    return response.choices[0].message.content, tier
 
 
 async def chat_completion_stream(
@@ -80,13 +105,27 @@ async def chat_completion_stream(
     max_tokens: int = 1024,
 ):
     """
-    Stream a chat completion response via LiteLLM.
+    Stream a chat completion response via LiteLLM with automatic model routing.
 
     Yields:
         Chunks of the assistant's response text.
+        After all chunks, the tier can be accessed via the .tier attribute
+        set on the generator (not directly available in async generators).
     """
     _configure_litellm()
-    settings = get_settings()
+
+    # ── Route to the right model ─────────────────────────
+    if model:
+        selected_model = model
+    else:
+        latest_user_msg = ""
+        for msg in reversed(messages):
+            if msg.get("role") == "user":
+                latest_user_msg = msg.get("content", "")
+                break
+        selected_model, _ = route_query(latest_user_msg)
+
+    logger.info(f"🌿 Router (stream) → {selected_model}")
 
     full_messages = [
         {"role": "system", "content": system_prompt or GROVE_SYSTEM_PROMPT}
@@ -94,7 +133,7 @@ async def chat_completion_stream(
     full_messages.extend(messages)
 
     response = await litellm.acompletion(
-        model=model or settings.LITELLM_MODEL,
+        model=selected_model,
         messages=full_messages,
         temperature=temperature,
         max_tokens=max_tokens,

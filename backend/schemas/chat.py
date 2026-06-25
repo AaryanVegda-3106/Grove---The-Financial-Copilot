@@ -2,7 +2,7 @@
 Pydantic schemas for the chat system.
 """
 
-from datetime import datetime
+from datetime import datetime, timezone
 from pydantic import BaseModel, Field
 
 
@@ -30,7 +30,7 @@ class ChatMessage(BaseModel):
         description="Message role: 'user' or 'assistant'.",
     )
     content: str
-    timestamp: datetime = Field(default_factory=datetime.utcnow)
+    timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 
 class ChatResponse(BaseModel):
@@ -42,6 +42,9 @@ class ChatResponse(BaseModel):
     )
     message_id: str | None = Field(
         default=None, description="Unique ID of this response message."
+    )
+    model_tier: str | None = Field(
+        default=None, description="Model tier used: 'fast' or 'strong'."
     )
 
 

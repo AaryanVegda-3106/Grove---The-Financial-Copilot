@@ -100,9 +100,9 @@ async def send_message(
 
     history.append({"role": "user", "content": request.message})
 
-    # ── Get AI response ──────────────────────────────────
+    # ── Get AI response (with automatic model routing) ──
     try:
-        ai_response = await chat_completion(messages=history)
+        ai_response, model_tier = await chat_completion(messages=history)
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_502_BAD_GATEWAY,
@@ -135,6 +135,7 @@ async def send_message(
         response=ai_response,
         conversation_id=conversation_id,
         message_id=assistant_msg_id,
+        model_tier=model_tier.value,
     )
 
 
