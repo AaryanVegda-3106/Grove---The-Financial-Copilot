@@ -2,7 +2,7 @@
 Pydantic schemas for financial data — expenses, budgets, and summaries.
 """
 
-from datetime import date, datetime
+from datetime import date as dt_date, datetime
 from pydantic import BaseModel, Field
 
 
@@ -20,8 +20,8 @@ class ExpenseCreate(BaseModel):
         gt=0,
         description="Expense amount in USD.",
     )
-    date: date = Field(
-        default_factory=date.today,
+    date: dt_date = Field(
+        default_factory=dt_date.today,
         description="Date of the expense.",
     )
     description: str | None = Field(
@@ -38,7 +38,7 @@ class Expense(BaseModel):
     user_id: str
     category: str
     amount: float
-    date: date
+    date: dt_date
     description: str | None = None
     created_at: datetime
 

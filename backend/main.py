@@ -24,7 +24,7 @@ async def lifespan(app: FastAPI):
     Runs startup logic before yield, cleanup logic after.
     """
     # ── Startup ──────────────────────────────────────────
-    print(f"🌿 {settings.APP_NAME} v{settings.APP_VERSION} starting...")
+    print(f"{settings.APP_NAME} v{settings.APP_VERSION} starting...")
     print(f"   Debug mode: {settings.DEBUG}")
     print(f"   Frontend:   {settings.FRONTEND_URL}")
 
@@ -36,12 +36,12 @@ async def lifespan(app: FastAPI):
     if not settings.NVIDIA_NIM_API_KEY:
         print("   ⚠️  NVIDIA_NIM_API_KEY not set — chat features disabled")
 
-    print(f"🌿 {settings.APP_NAME} ready!")
+    print(f"{settings.APP_NAME} ready!")
 
     yield
 
     # ── Shutdown ─────────────────────────────────────────
-    print(f"🌿 {settings.APP_NAME} shutting down...")
+    print(f"{settings.APP_NAME} shutting down...")
 
 
 # ── App ──────────────────────────────────────────────────────
