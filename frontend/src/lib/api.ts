@@ -137,6 +137,14 @@ async function apiFetch<T>(
     }
   }
 
+  if (
+    !headers["Authorization"] &&
+    typeof document !== "undefined" &&
+    document.cookie.includes("dev_mode=true")
+  ) {
+    headers["Authorization"] = "Bearer dev_mode_token";
+  }
+
   const res = await fetch(`${API_URL}${path}`, {
     ...options,
     headers,

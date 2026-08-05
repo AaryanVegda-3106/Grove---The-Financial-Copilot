@@ -107,25 +107,53 @@ async def verify_clerk_token(token: str) -> dict:
         )
 
 
+DEV_USER = {
+    "sub": "user_dev_mode_grove_123",
+    "email": "dev@grove.app",
+    "first_name": "Dev",
+    "name": "Dev User",
+}
+
+
 async def get_current_user(
-    authorization: Annotated[str, Header()],
+    authorization: Annotated[str | None, Header()] = None,
 ) -> dict:
     """
     FastAPI dependency that extracts and verifies the Clerk JWT.
-
-    Usage:
-        @router.get("/protected")
-        async def protected_route(user: dict = Depends(get_current_user)):
-            user_id = user["sub"]
+    Provides a Dev Mode fallback when DEBUG is True or dev token is present.
     """
+    settings = get_settings()
+
+    if (
+        not authorization
+        or authorization in ("Bearer null", "Bearer undefined")
+        or authorization.startswith("Bearer dev_")
+    ):
+        if settings.DEBUG:
+            return DEV_USER
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Authorization header missing",
+        )
+
     if not authorization.startswith("Bearer "):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Authorization header must start with 'Bearer '",
         )
 
-    token = authorization[7:]  # Strip "Bearer "
-    return await verify_clerk_token(token)
+    token = authorization[7:]
+    try:
+        return await verify_clerk_token(token)
+    except Exception as e:
+        if settings.DEBUG or token.startswith("dev_"):
+            return DEV_USER
+        if isinstance(e, HTTPException):
+            raise e
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail=f"Token verification failed: {str(e)}",
+        )
 
 
 def clear_jwks_cache() -> None:

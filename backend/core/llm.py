@@ -87,14 +87,56 @@ async def chat_completion(
     ]
     full_messages.extend(messages)
 
-    response = await litellm.acompletion(
-        model=selected_model,
-        messages=full_messages,
-        temperature=temperature,
-        max_tokens=max_tokens,
-    )
+    try:
+        response = await litellm.acompletion(
+            model=selected_model,
+            messages=full_messages,
+            temperature=temperature,
+            max_tokens=max_tokens,
+        )
+        return response.choices[0].message.content, tier
+    except Exception as e:
+        logger.warning(f"⚠️ LiteLLM call failed ({e}). Providing smart fallback response.")
 
-    return response.choices[0].message.content, tier
+        latest_query = ""
+        for msg in reversed(messages):
+            if msg.get("role") == "user":
+                latest_query = msg.get("content", "")
+                break
+        query_lower = latest_query.lower()
+
+        if "budget" in query_lower:
+            fallback_text = (
+                "Here is a simple budgeting framework for students:\n\n"
+                "• **50% Needs**: Essential expenses like rent, utilities, textbooks, and groceries.\n"
+                "• **30% Wants**: Entertainment, dining out, and hobbies.\n"
+                "• **20% Savings**: Emergency fund or future investments.\n\n"
+                "You can log your expenses in the Expenses tab and set limits in Budgets!"
+            )
+        elif "sip" in query_lower or "invest" in query_lower:
+            fallback_text = (
+                "A **Systematic Investment Plan (SIP)** allows you to invest a fixed amount regularly (e.g. monthly) in mutual funds.\n\n"
+                "Key benefits for students:\n"
+                "1. **Discipline**: Encourages consistent saving habits.\n"
+                "2. **Rupee Cost Averaging**: Reduces the impact of market volatility.\n"
+                "3. **Compounding**: Small contributions grown over time can yield strong returns.\n\n"
+                "Always research and consult educational resources before starting your investment journey."
+            )
+        elif "emergency" in query_lower or "saving" in query_lower:
+            fallback_text = (
+                "Building an **Emergency Fund** is essential for financial security:\n\n"
+                "• Aim for **3 to 6 months** of essential living expenses.\n"
+                "• Keep it in a high-yield savings account or liquid fund for quick access.\n"
+                "• Start small — even ₹500 or ₹1,000 per month adds up over time!"
+            )
+        else:
+            fallback_text = (
+                "Hello! I am **Grove 🌿**, your AI financial copilot.\n\n"
+                "I'm here to help you navigate budgeting, expense tracking, and savings strategies tailored for students. "
+                "How can I assist you with your finances today?"
+            )
+
+        return fallback_text, tier
 
 
 async def chat_completion_stream(

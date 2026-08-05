@@ -30,7 +30,6 @@ export default function DashboardLayout({
           return;
         }
       } catch {
-        // Profile doesn't exist yet — redirect to onboarding
         router.replace("/onboarding");
         return;
       }
@@ -43,13 +42,13 @@ export default function DashboardLayout({
   if (!isLoaded || loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[var(--background)]">
-        <div className="flex flex-col items-center gap-4">
+        <div className="flex flex-col items-center gap-4 relative z-10">
           <div className="relative">
             <Leaf className="w-10 h-10 text-[var(--foreground)] animate-pulse" />
           </div>
           <div className="flex items-center gap-2 text-[var(--foreground)]/60">
             <Loader2 className="w-4 h-4 animate-spin" />
-            <span className="text-sm">Loading Grove...</span>
+            <span className="text-sm font-medium">Loading Grove...</span>
           </div>
         </div>
       </div>
@@ -57,38 +56,21 @@ export default function DashboardLayout({
   }
 
   return (
-    <div className="flex h-screen bg-[var(--background)] overflow-hidden">
+    <div className="flex h-screen bg-[var(--background)] overflow-hidden text-[var(--foreground)] relative">
+      {/* Abstract Background for Glassmorphism */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden z-0">
+        <div className="absolute top-[-10%] left-[-10%] w-[50vw] h-[50vw] rounded-full bg-[var(--foreground)]/5 blur-[100px] mix-blend-multiply" />
+        <div className="absolute bottom-[-10%] right-[-10%] w-[60vw] h-[60vw] rounded-full bg-[#059669]/5 blur-[120px] mix-blend-multiply" />
+        <div className="absolute top-[40%] left-[60%] w-[30vw] h-[30vw] rounded-full bg-amber-500/5 blur-[80px] mix-blend-multiply" />
+      </div>
+
       {/* Sidebar */}
       <Sidebar />
 
       {/* Main content */}
-      <div className="flex-1 flex flex-col overflow-hidden">
-        {/* Top header */}
-        <header className="flex items-center justify-between px-8 py-4 border-b border-white/10 bg-[var(--background)]">
-          <div>
-            <h2 className="text-lg font-semibold text-[var(--foreground)]">
-              Hey, {userName} 👋
-            </h2>
-            <p className="text-sm text-[var(--foreground)]/50">
-              {new Date().toLocaleDateString("en-IN", {
-                weekday: "long",
-                year: "numeric",
-                month: "long",
-                day: "numeric",
-              })}
-            </p>
-          </div>
-          <UserButton
-            appearance={{
-              elements: {
-                avatarBox: "w-9 h-9",
-              },
-            }}
-          />
-        </header>
-
+      <div className="flex-1 flex flex-col overflow-hidden relative z-10">
         {/* Page content */}
-        <main className="flex-1 overflow-y-auto p-8">{children}</main>
+        <main className="flex-1 overflow-y-auto p-0 z-10">{children}</main>
       </div>
     </div>
   );

@@ -1,97 +1,122 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { UserButton, useUser } from "@clerk/nextjs";
 import {
-  LayoutDashboard,
   MessageSquare,
-  Receipt,
-  PiggyBank,
-  ChevronLeft,
-  ChevronRight,
+  TrendingUp,
+  Wallet,
+  Target,
+  Bell,
+  Settings,
   Leaf,
+  ChevronLeft,
+  ChevronRight
 } from "lucide-react";
-import { useState } from "react";
 
 const navItems = [
-  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/dashboard/chat", label: "Chat", icon: MessageSquare },
-  { href: "/dashboard/expenses", label: "Expenses", icon: Receipt },
-  { href: "/dashboard/budgets", label: "Budgets", icon: PiggyBank },
+  { href: "/dashboard", label: "Dashboard", icon: TrendingUp },
+  { href: "/dashboard/expenses", label: "Expenses", icon: Wallet },
+  { href: "/dashboard/budgets", label: "Budgets", icon: Target },
+  { href: "/dashboard/notifications", label: "Notifications", icon: Bell },
+  { href: "/dashboard/settings", label: "Settings", icon: Settings },
 ];
 
 export default function Sidebar() {
   const pathname = usePathname();
-  const [collapsed, setCollapsed] = useState(false);
+  const [collapsed, setCollapsed] = useState(true);
+  const { user } = useUser();
 
   return (
-    <aside
-      className={`
-        relative flex flex-col h-full
-        bg-[#163a2e] border-r border-white/10
-        transition-all duration-300 ease-in-out
-        ${collapsed ? "w-[72px]" : "w-[260px]"}
-      `}
-    >
-      {/* Logo */}
-      <div className="flex items-center gap-3 px-5 py-6 border-b border-white/10">
-        <div className="flex items-center justify-center w-9 h-9 rounded-xl bg-[var(--foreground)]/10">
-          <Leaf className="w-5 h-5 text-[var(--foreground)]" />
+    <aside className={`relative h-full flex flex-col py-6 bg-[#164132] z-50 shrink-0 border-r border-[#164132] transition-all duration-300 ${collapsed ? "w-[88px] items-center" : "w-[260px] px-4"}`}>
+      
+      {/* Toggle Button */}
+      <button
+        onClick={() => setCollapsed(!collapsed)}
+        className="absolute -right-3.5 top-12 w-7 h-7 rounded-full bg-[#164132] border-2 border-[#FFF9D4]/20 flex items-center justify-center text-white/80 hover:text-white hover:bg-[#164132]/90 transition-colors z-40 shadow-md"
+      >
+        {collapsed ? (
+          <ChevronRight className="w-4 h-4 ml-0.5" />
+        ) : (
+          <ChevronLeft className="w-4 h-4 mr-0.5" />
+        )}
+      </button>
+
+      {/* Top Logo */}
+      <Link href="/" className={`mb-12 flex items-center gap-3 ${collapsed ? "justify-center" : "px-2"}`}>
+        <div className="w-12 h-12 rounded-2xl flex items-center justify-center border border-white/20 bg-gradient-to-br from-white/10 to-transparent shadow-sm shrink-0">
+          <Leaf className="w-6 h-6 text-white" strokeWidth={2.5} />
         </div>
         {!collapsed && (
-          <span className="text-xl font-serif font-bold text-[var(--foreground)] tracking-tight">
+          <span className="text-2xl font-serif font-bold text-white tracking-tight whitespace-nowrap">
             Grove.
           </span>
         )}
-      </div>
+      </Link>
 
-      {/* Nav */}
-      <nav className="flex-1 flex flex-col gap-1 px-3 py-4">
+      {/* Navigation Icons */}
+      <nav className={`flex flex-col gap-4 flex-1 w-full ${collapsed ? "items-center" : ""}`}>
         {navItems.map((item) => {
-          const isActive =
-            item.href === "/dashboard"
-              ? pathname === "/dashboard"
-              : pathname.startsWith(item.href);
+          let isActive = false;
+          if (item.href === "/dashboard") {
+            isActive = pathname === "/dashboard";
+          } else {
+            isActive = pathname.startsWith(item.href);
+          }
 
           return (
             <Link
               key={item.href}
               href={item.href}
+              title={collapsed ? item.label : undefined}
               className={`
-                flex items-center gap-3 px-3 py-2.5 rounded-xl
-                text-sm font-medium transition-all duration-200
+                relative flex items-center gap-4 transition-all duration-300
+                ${collapsed ? "justify-center w-12 h-12 rounded-2xl" : "w-full px-4 py-3 rounded-xl"}
                 ${
                   isActive
-                    ? "bg-[var(--foreground)]/15 text-[var(--foreground)]"
-                    : "text-[var(--foreground)]/60 hover:text-[var(--foreground)]/90 hover:bg-[var(--foreground)]/5"
+                    ? "bg-[#8DB596]/30 text-white shadow-inner font-bold"
+                    : "text-white/50 hover:bg-white/10 hover:text-white font-semibold"
                 }
               `}
             >
-              <item.icon className="w-5 h-5 shrink-0" />
-              {!collapsed && <span>{item.label}</span>}
+              <item.icon className="w-[22px] h-[22px] shrink-0" strokeWidth={isActive ? 2.5 : 2} />
+              
+              {!collapsed && (
+                <span className="text-[14px] whitespace-nowrap">{item.label}</span>
+              )}
+
+              {/* Active Indicator Dot */}
+              {isActive && collapsed && (
+                <div className="absolute -left-3 top-1/2 -translate-y-1/2 w-1.5 h-6 bg-[#8DB596] rounded-r-full" />
+              )}
             </Link>
           );
         })}
       </nav>
 
-      {/* Collapse toggle */}
-      <button
-        onClick={() => setCollapsed(!collapsed)}
-        className="
-          absolute -right-3 top-1/2 -translate-y-1/2
-          w-6 h-6 rounded-full
-          bg-[#163a2e] border border-white/20
-          flex items-center justify-center
-          text-[var(--foreground)]/60 hover:text-[var(--foreground)]
-          transition-colors z-10
-        "
-      >
-        {collapsed ? (
-          <ChevronRight className="w-3.5 h-3.5" />
-        ) : (
-          <ChevronLeft className="w-3.5 h-3.5" />
-        )}
-      </button>
+      {/* Bottom Profile */}
+      <div className={`mt-auto ${collapsed ? "" : "px-2"}`}>
+        <div className={`flex items-center gap-3 ${collapsed ? "justify-center" : "p-2 rounded-xl bg-white/5 border border-white/10"}`}>
+          <div className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center border border-white/20 shrink-0">
+            <UserButton 
+              appearance={{
+                elements: {
+                  avatarBox: "w-11 h-11",
+                }
+              }}
+            />
+          </div>
+          {!collapsed && (
+            <div className="flex flex-col overflow-hidden">
+              <span className="text-sm font-bold text-white truncate">{user?.firstName || "Dev"}</span>
+              <span className="text-[11px] font-medium text-white/50 truncate">Pro Member</span>
+            </div>
+          )}
+        </div>
+      </div>
     </aside>
   );
 }

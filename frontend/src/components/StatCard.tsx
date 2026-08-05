@@ -20,50 +20,45 @@ export default function StatCard({
   className = "",
 }: StatCardProps) {
   const trendColors = {
-    up: "text-emerald-400",
-    down: "text-red-400",
-    neutral: "text-[var(--foreground)]/50",
+    up: "text-emerald-700 font-bold",
+    down: "text-red-600 font-bold",
+    neutral: "text-[var(--foreground)]/60 font-semibold",
   };
 
   return (
     <div
       className={`
         relative overflow-hidden
-        rounded-2xl border border-white/10
-        bg-white/5 backdrop-blur-sm
-        p-5 transition-all duration-300
-        hover:bg-white/[0.08] hover:border-white/15
+        glass-card
+        p-6 transition-all duration-300 hover:bg-white/50
         group
         ${className}
       `}
     >
-      {/* Subtle glow effect */}
-      <div className="absolute -top-12 -right-12 w-24 h-24 rounded-full bg-[var(--foreground)]/5 blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-
       <div className="flex items-start justify-between relative z-10">
-        <div className="flex flex-col gap-1">
-          <span className="text-xs font-medium uppercase tracking-wider text-[var(--foreground)]/50">
+        <div className="flex flex-col gap-1.5">
+          <span className="text-xs font-bold uppercase tracking-widest text-[var(--foreground)]/60">
             {label}
           </span>
-          <span className="text-2xl font-bold text-[var(--foreground)] tracking-tight">
+          <span className="text-3xl font-extrabold text-[var(--foreground)] tracking-tight mt-1 drop-shadow-sm">
             {value}
           </span>
           {subtitle && (
-            <span className="text-sm text-[var(--foreground)]/60 mt-0.5">
+            <span className="text-sm font-medium text-[var(--foreground)]/70 mt-1">
               {subtitle}
             </span>
           )}
           {trend && trendLabel && (
             <span
-              className={`text-xs font-medium mt-1 ${trendColors[trend]}`}
+              className={`text-[11px] uppercase tracking-wider mt-2 px-2.5 py-1 inline-flex items-center gap-1 w-fit rounded-lg bg-white/40 shadow-sm border border-white/50 backdrop-blur-md ${trendColors[trend]}`}
             >
               {trend === "up" ? "↑" : trend === "down" ? "↓" : "→"}{" "}
               {trendLabel}
             </span>
           )}
         </div>
-        <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-[var(--foreground)]/10">
-          <Icon className="w-5 h-5 text-[var(--foreground)]/70" />
+        <div className="flex items-center justify-center w-12 h-12 rounded-2xl glass-input">
+          <Icon className="w-6 h-6 text-[var(--foreground)] drop-shadow-md" />
         </div>
       </div>
     </div>

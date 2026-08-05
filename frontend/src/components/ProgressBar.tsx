@@ -18,31 +18,31 @@ export default function ProgressBar({
   // Color thresholds
   const barColor =
     value >= 100
-      ? "bg-red-400"
+      ? "bg-red-500 shadow-[0_0_10px_rgba(239,68,68,0.5)]"
       : value >= 75
-        ? "bg-amber-400"
-        : "bg-emerald-400";
+        ? "bg-amber-500 shadow-[0_0_10px_rgba(245,158,11,0.5)]"
+        : "bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)]";
 
   const heights = {
-    sm: "h-1.5",
-    md: "h-2.5",
-    lg: "h-4",
+    sm: "h-2",
+    md: "h-3",
+    lg: "h-5",
   };
 
   return (
-    <div className={`flex flex-col gap-1.5 ${className}`}>
+    <div className={`flex flex-col gap-2 ${className}`}>
       {(label || showPercentage) && (
-        <div className="flex items-center justify-between text-xs">
+        <div className="flex items-center justify-between text-xs font-bold uppercase tracking-wide">
           {label && (
-            <span className="font-medium text-[var(--foreground)]/70 capitalize">
+            <span className="text-[var(--foreground)]/80">
               {label}
             </span>
           )}
           {showPercentage && (
             <span
-              className={`font-semibold tabular-nums ${
+              className={`tabular-nums ${
                 value >= 100
-                  ? "text-red-400"
+                  ? "text-red-600"
                   : "text-[var(--foreground)]/60"
               }`}
             >
@@ -54,13 +54,14 @@ export default function ProgressBar({
       <div
         className={`
           w-full rounded-full overflow-hidden
-          bg-white/10 ${heights[size]}
+          glass-input
+          ${heights[size]} p-0.5
         `}
       >
         <div
           className={`
             ${heights[size]} rounded-full ${barColor}
-            transition-all duration-700 ease-out
+            transition-all duration-700 ease-out h-full
           `}
           style={{ width: `${clampedVisual}%` }}
         />

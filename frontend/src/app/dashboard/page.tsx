@@ -29,7 +29,7 @@ const itemVariants = {
   show: { 
     opacity: 1, 
     y: 0, 
-    transition: { type: "spring", stiffness: 300, damping: 24 } 
+    transition: { type: "spring" as const, stiffness: 300, damping: 24 } 
   }
 };
 
@@ -64,14 +64,14 @@ export default function DashboardPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <Loader2 className="w-6 h-6 text-[var(--foreground)]/40 animate-spin" />
+        <Loader2 className="w-6 h-6 text-[var(--foreground)]/50 animate-spin" />
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-300 text-sm">
+      <div className="p-4 rounded-2xl glass-card border-red-500/30 text-red-600 text-sm font-medium">
         {error}
       </div>
     );
@@ -82,17 +82,17 @@ export default function DashboardPage() {
 
   return (
     <motion.div 
-      className="space-y-8 max-w-6xl"
+      className="space-y-8 max-w-6xl relative z-10 p-8 pt-6"
       variants={containerVariants}
       initial="hidden"
       animate="show"
     >
       {/* Page header */}
       <motion.div variants={itemVariants}>
-        <h1 className="text-2xl font-bold text-[var(--foreground)]">
+        <h1 className="text-3xl font-extrabold text-[var(--foreground)] tracking-tight">
           Financial Overview
         </h1>
-        <p className="text-sm text-[var(--foreground)]/50 mt-1">
+        <p className="text-sm font-semibold text-[var(--foreground)]/60 mt-1.5 uppercase tracking-wide">
           {new Date().toLocaleDateString("en-IN", {
             month: "long",
             year: "numeric",
@@ -102,7 +102,7 @@ export default function DashboardPage() {
       </motion.div>
 
       {/* Stat cards row */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         <motion.div variants={itemVariants}>
           <StatCard
             label="Income"
@@ -136,31 +136,31 @@ export default function DashboardPage() {
       </div>
 
       {/* Two column layout */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Top Categories */}
-        <motion.div variants={itemVariants} className="rounded-2xl border border-white/10 bg-white/5 p-6">
-          <h3 className="text-sm font-semibold uppercase tracking-wider text-[var(--foreground)]/50 mb-4">
+        <motion.div variants={itemVariants} className="glass-card p-8">
+          <h3 className="text-sm font-bold uppercase tracking-widest text-[var(--foreground)]/60 mb-6">
             Top Spending Categories
           </h3>
           {s.top_categories.length > 0 ? (
-            <div className="space-y-4">
+            <div className="space-y-6">
               {s.top_categories.slice(0, 5).map((cat, i) => {
                 const maxAmount = s.top_categories[0]?.amount || 1;
                 const percentage = (cat.amount / maxAmount) * 100;
 
                 return (
-                  <div key={i} className="space-y-1.5">
+                  <div key={i} className="space-y-2.5">
                     <div className="flex items-center justify-between text-sm">
-                      <span className="font-medium text-[var(--foreground)]/80 capitalize">
+                      <span className="font-bold text-[var(--foreground)] capitalize tracking-wide">
                         {cat.category}
                       </span>
-                      <span className="text-[var(--foreground)]/60 tabular-nums">
+                      <span className="font-bold text-[var(--foreground)]/80 tabular-nums">
                         {formatCurrency(cat.amount)}
                       </span>
                     </div>
-                    <div className="w-full h-2 rounded-full bg-white/10 overflow-hidden">
+                    <div className="w-full h-3 rounded-full glass-input p-[1px]">
                       <div
-                        className="h-2 rounded-full bg-[var(--foreground)]/40 transition-all duration-700"
+                        className="h-full rounded-full bg-emerald-600 shadow-[0_0_8px_rgba(5,150,105,0.4)] transition-all duration-700 ease-out"
                         style={{ width: `${percentage}%` }}
                       />
                     </div>
@@ -169,11 +169,11 @@ export default function DashboardPage() {
               })}
             </div>
           ) : (
-            <p className="text-sm text-[var(--foreground)]/40 py-8 text-center">
+            <p className="text-sm font-semibold text-[var(--foreground)]/60 py-12 text-center">
               No expenses recorded yet.{" "}
               <Link
                 href="/dashboard/expenses"
-                className="text-[var(--foreground)]/70 underline underline-offset-4"
+                className="text-emerald-700 hover:text-emerald-800 underline underline-offset-4"
               >
                 Add your first expense
               </Link>
@@ -182,19 +182,19 @@ export default function DashboardPage() {
         </motion.div>
 
         {/* Budget Progress */}
-        <motion.div variants={itemVariants} className="rounded-2xl border border-white/10 bg-white/5 p-6">
-          <h3 className="text-sm font-semibold uppercase tracking-wider text-[var(--foreground)]/50 mb-4">
+        <motion.div variants={itemVariants} className="glass-card p-8">
+          <h3 className="text-sm font-bold uppercase tracking-widest text-[var(--foreground)]/60 mb-6">
             Budget Progress
           </h3>
           {s.budget_status.length > 0 ? (
-            <div className="space-y-5">
+            <div className="space-y-7">
               {s.budget_status.map((budget) => (
                 <div key={budget.id}>
                   <ProgressBar
                     value={budget.percentage_used}
                     label={budget.category}
                   />
-                  <div className="flex justify-between text-xs text-[var(--foreground)]/40 mt-1">
+                  <div className="flex justify-between text-[11px] font-bold uppercase tracking-wider text-[var(--foreground)]/60 mt-2">
                     <span>
                       {formatCurrency(budget.spent)} spent
                     </span>
@@ -206,11 +206,11 @@ export default function DashboardPage() {
               ))}
             </div>
           ) : (
-            <p className="text-sm text-[var(--foreground)]/40 py-8 text-center">
+            <p className="text-sm font-semibold text-[var(--foreground)]/60 py-12 text-center">
               No budgets set yet.{" "}
               <Link
                 href="/dashboard/budgets"
-                className="text-[var(--foreground)]/70 underline underline-offset-4"
+                className="text-emerald-700 hover:text-emerald-800 underline underline-offset-4"
               >
                 Create a budget
               </Link>
@@ -225,27 +225,27 @@ export default function DashboardPage() {
           href="/dashboard/chat"
           className="
             group flex items-center justify-between
-            rounded-2xl border border-white/10 bg-white/5
-            p-6 transition-all duration-300
-            hover:bg-white/[0.08] hover:border-white/15
+            glass-btn p-8 mt-4
           "
         >
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-xl bg-[var(--foreground)]/10 flex items-center justify-center">
-              <MessageSquare className="w-6 h-6 text-[var(--foreground)]/70" />
+          <div className="flex items-center gap-6">
+            <div className="w-16 h-16 rounded-2xl glass-input flex items-center justify-center bg-white/40">
+              <MessageSquare className="w-7 h-7 text-[var(--foreground)] drop-shadow-sm" />
             </div>
             <div>
-              <h3 className="text-base font-semibold text-[var(--foreground)]">
+              <h3 className="text-xl font-extrabold text-[var(--foreground)] tracking-tight">
                 Ask Grove anything
               </h3>
-              <p className="text-sm text-[var(--foreground)]/50">
+              <p className="text-sm font-medium text-[var(--foreground)]/70 mt-1">
                 {hasData
                   ? "Get personalized insights about your finances"
                   : "Get help creating a budget, understanding SIPs, or planning savings"}
               </p>
             </div>
           </div>
-          <ArrowRight className="w-5 h-5 text-[var(--foreground)]/40 group-hover:text-[var(--foreground)]/70 group-hover:translate-x-1 transition-all" />
+          <div className="w-12 h-12 rounded-full glass-btn flex items-center justify-center mr-2 bg-white/40">
+            <ArrowRight className="w-5 h-5 text-[var(--foreground)] group-hover:translate-x-1 transition-all" />
+          </div>
         </Link>
       </motion.div>
     </motion.div>

@@ -38,24 +38,21 @@ const RISK_LEVELS = [
     label: "Conservative",
     icon: Shield,
     description: "Prioritize safety. Savings accounts, FDs, low-risk funds.",
-    color: "from-emerald-500/20 to-emerald-700/20",
-    border: "border-emerald-500/30",
+    activeClass: "glass-btn-active",
   },
   {
     id: "moderate" as const,
     label: "Moderate",
     icon: Zap,
     description: "Balanced approach. Mix of equity and debt mutual funds.",
-    color: "from-amber-500/20 to-amber-700/20",
-    border: "border-amber-500/30",
+    activeClass: "glass-btn-active",
   },
   {
     id: "aggressive" as const,
     label: "Aggressive",
     icon: Flame,
     description: "Maximize growth. Stocks, equity funds, higher risk tolerance.",
-    color: "from-red-500/20 to-red-700/20",
-    border: "border-red-500/30",
+    activeClass: "glass-btn-active",
   },
 ];
 
@@ -113,50 +110,57 @@ export default function OnboardingPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[var(--background)] p-4">
-      {/* Background decorations */}
-      <div className="fixed inset-0 pointer-events-none overflow-hidden">
-        <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-[var(--foreground)] opacity-[0.03] rounded-full blur-3xl" />
-        <div className="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] bg-[var(--foreground)] opacity-[0.02] rounded-full blur-3xl" />
+    <div className="min-h-screen flex items-center justify-center bg-[var(--background)] p-4 relative overflow-hidden">
+      {/* Abstract background decorative elements for glassmorphism */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden z-0">
+        <div className="absolute top-[10%] left-[20%] w-[500px] h-[500px] rounded-full bg-[var(--foreground)]/5 blur-[120px] mix-blend-multiply" />
+        <div className="absolute bottom-[20%] right-[15%] w-[600px] h-[600px] rounded-full bg-emerald-600/5 blur-[150px] mix-blend-multiply" />
+        <div className="absolute top-[40%] left-[50%] w-[400px] h-[400px] rounded-full bg-amber-500/5 blur-[100px] mix-blend-multiply" />
       </div>
 
-      <div className="relative z-10 w-full max-w-lg">
+      <div className="relative z-10 w-full max-w-xl">
         {/* Logo */}
-        <div className="flex items-center justify-center gap-2 mb-8">
-          <Leaf className="w-7 h-7 text-[var(--foreground)]" />
-          <span className="text-2xl font-serif font-bold text-[var(--foreground)]">
+        <div className="flex items-center justify-center gap-3 mb-10">
+          <div className="w-12 h-12 rounded-2xl glass-card flex items-center justify-center">
+            <Leaf className="w-6 h-6 text-emerald-600 drop-shadow-sm" />
+          </div>
+          <span className="text-4xl font-serif font-bold text-[var(--foreground)] tracking-tight drop-shadow-sm">
             Grove.
           </span>
         </div>
 
         {/* Progress bar */}
-        <div className="flex gap-2 mb-8">
+        <div className="flex gap-3 mb-8">
           {Array.from({ length: totalSteps }).map((_, i) => (
             <div
               key={i}
               className={`
-                h-1 flex-1 rounded-full transition-all duration-500
-                ${i <= step ? "bg-[var(--foreground)]" : "bg-white/15"}
+                h-2.5 flex-1 rounded-full transition-all duration-500
+                glass-input p-[1px]
               `}
-            />
+            >
+              <div 
+                className={`h-full rounded-full transition-all duration-500 ${i <= step ? "bg-emerald-600 shadow-[0_0_8px_rgba(5,150,105,0.5)]" : "bg-transparent"}`}
+              />
+            </div>
           ))}
         </div>
 
         {/* Card */}
-        <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-sm p-8">
+        <div className="glass-card p-10 relative">
           {/* Step 1: Goals */}
           {step === 0 && (
-            <div className="space-y-6">
-              <div>
-                <h2 className="text-2xl font-bold text-[var(--foreground)]">
+            <div className="space-y-8">
+              <div className="text-center">
+                <h2 className="text-3xl font-extrabold text-[var(--foreground)] tracking-tight">
                   What are your financial goals?
                 </h2>
-                <p className="text-sm text-[var(--foreground)]/60 mt-1">
+                <p className="text-sm font-semibold text-[var(--foreground)]/60 mt-2">
                   Select all that apply. This helps Grove personalize advice for you.
                 </p>
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-2 gap-4">
                 {GOALS.map((goal) => {
                   const isSelected = selectedGoals.includes(goal.id);
                   return (
@@ -164,34 +168,27 @@ export default function OnboardingPage() {
                       key={goal.id}
                       onClick={() => toggleGoal(goal.id)}
                       className={`
-                        flex items-center gap-3 p-4 rounded-xl
-                        border transition-all duration-200 text-left
+                        flex items-center gap-3 p-4 rounded-2xl transition-all duration-200 text-left
                         ${
                           isSelected
-                            ? "border-[var(--foreground)]/40 bg-[var(--foreground)]/10"
-                            : "border-white/10 bg-white/5 hover:border-white/20 hover:bg-white/[0.08]"
+                            ? "glass-btn-active bg-[var(--foreground)] text-[var(--background)]"
+                            : "glass-btn text-[var(--foreground)]/80 hover:text-[var(--foreground)]"
                         }
                       `}
                     >
                       <div
                         className={`
-                          w-8 h-8 rounded-lg flex items-center justify-center shrink-0
-                          ${isSelected ? "bg-[var(--foreground)]/20" : "bg-white/10"}
+                          w-10 h-10 rounded-xl flex items-center justify-center shrink-0
+                          ${isSelected ? "bg-white/20 shadow-inner" : "glass-input bg-white/40"}
                         `}
                       >
                         {isSelected ? (
-                          <Check className="w-4 h-4 text-[var(--foreground)]" />
+                          <Check className="w-5 h-5 text-[var(--background)] drop-shadow-sm" />
                         ) : (
-                          <goal.icon className="w-4 h-4 text-[var(--foreground)]/60" />
+                          <goal.icon className="w-5 h-5 drop-shadow-sm" />
                         )}
                       </div>
-                      <span
-                        className={`text-sm font-medium ${
-                          isSelected
-                            ? "text-[var(--foreground)]"
-                            : "text-[var(--foreground)]/70"
-                        }`}
-                      >
+                      <span className="text-sm font-bold">
                         {goal.label}
                       </span>
                     </button>
@@ -203,17 +200,17 @@ export default function OnboardingPage() {
 
           {/* Step 2: Risk tolerance */}
           {step === 1 && (
-            <div className="space-y-6">
-              <div>
-                <h2 className="text-2xl font-bold text-[var(--foreground)]">
-                  What&apos;s your comfort level with risk?
+            <div className="space-y-8">
+              <div className="text-center">
+                <h2 className="text-3xl font-extrabold text-[var(--foreground)] tracking-tight">
+                  Comfort level with risk?
                 </h2>
-                <p className="text-sm text-[var(--foreground)]/60 mt-1">
+                <p className="text-sm font-semibold text-[var(--foreground)]/60 mt-2">
                   This helps us tailor investment-related advice.
                 </p>
               </div>
 
-              <div className="space-y-3">
+              <div className="space-y-4">
                 {RISK_LEVELS.map((level) => {
                   const isSelected = riskTolerance === level.id;
                   return (
@@ -221,40 +218,33 @@ export default function OnboardingPage() {
                       key={level.id}
                       onClick={() => setRiskTolerance(level.id)}
                       className={`
-                        w-full flex items-center gap-4 p-5 rounded-xl
-                        border transition-all duration-200 text-left
+                        w-full flex items-center gap-5 p-5 rounded-3xl transition-all duration-200 text-left
                         ${
                           isSelected
-                            ? `${level.border} bg-gradient-to-r ${level.color}`
-                            : "border-white/10 bg-white/5 hover:border-white/20"
+                            ? "glass-btn-active bg-[var(--foreground)] text-[var(--background)]"
+                            : "glass-btn text-[var(--foreground)]/80 hover:text-[var(--foreground)]"
                         }
                       `}
                     >
                       <div
                         className={`
-                          w-12 h-12 rounded-xl flex items-center justify-center shrink-0
-                          ${isSelected ? "bg-white/10" : "bg-white/5"}
+                          w-14 h-14 rounded-2xl flex items-center justify-center shrink-0
+                          ${isSelected ? "bg-white/20 shadow-inner" : "glass-input bg-white/40"}
                         `}
                       >
                         <level.icon
-                          className={`w-6 h-6 ${
+                          className={`w-7 h-7 drop-shadow-sm ${
                             isSelected
-                              ? "text-[var(--foreground)]"
-                              : "text-[var(--foreground)]/50"
+                              ? "text-[var(--background)]"
+                              : "text-[var(--foreground)]/60"
                           }`}
                         />
                       </div>
                       <div>
-                        <span
-                          className={`text-base font-semibold block ${
-                            isSelected
-                              ? "text-[var(--foreground)]"
-                              : "text-[var(--foreground)]/80"
-                          }`}
-                        >
+                        <span className="text-lg font-extrabold block">
                           {level.label}
                         </span>
-                        <span className="text-xs text-[var(--foreground)]/50 mt-0.5 block">
+                        <span className={`text-xs font-semibold mt-1 block ${isSelected ? "text-[var(--background)]/80" : "text-[var(--foreground)]/60"}`}>
                           {level.description}
                         </span>
                       </div>
@@ -267,57 +257,52 @@ export default function OnboardingPage() {
 
           {/* Step 3: Income & Expenses */}
           {step === 2 && (
-            <div className="space-y-6">
-              <div>
-                <h2 className="text-2xl font-bold text-[var(--foreground)]">
+            <div className="space-y-8">
+              <div className="text-center">
+                <h2 className="text-3xl font-extrabold text-[var(--foreground)] tracking-tight">
                   Let&apos;s set up your finances
                 </h2>
-                <p className="text-sm text-[var(--foreground)]/60 mt-1">
-                  Optional, but helps Grove give better advice. You can update
-                  these anytime.
+                <p className="text-sm font-semibold text-[var(--foreground)]/60 mt-2">
+                  Optional, but helps Grove give better advice. You can update these anytime.
                 </p>
               </div>
 
-              <div className="space-y-4">
+              <div className="space-y-6">
                 <div>
-                  <label className="block text-sm font-medium text-[var(--foreground)]/70 mb-2">
+                  <label className="block text-xs font-bold uppercase tracking-wider text-[var(--foreground)]/60 mb-2 pl-1">
                     Monthly Income (₹)
                   </label>
                   <div className="relative">
-                    <Wallet className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--foreground)]/40" />
+                    <Wallet className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[var(--foreground)]/40 drop-shadow-sm" />
                     <input
                       type="number"
-                      placeholder="e.g. 15000"
+                      placeholder="e.g. 50000"
                       value={monthlyIncome}
                       onChange={(e) => setMonthlyIncome(e.target.value)}
                       className="
-                        w-full pl-11 pr-4 py-3 rounded-xl
-                        bg-white/5 border border-white/10
-                        text-[var(--foreground)] placeholder-[var(--foreground)]/30
-                        focus:outline-none focus:border-[var(--foreground)]/30
-                        transition-colors
+                        w-full pl-12 pr-4 py-4
+                        glass-input text-[var(--foreground)] font-bold text-lg
+                        placeholder-[var(--foreground)]/30
                       "
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-[var(--foreground)]/70 mb-2">
+                  <label className="block text-xs font-bold uppercase tracking-wider text-[var(--foreground)]/60 mb-2 pl-1">
                     Monthly Expenses (₹)
                   </label>
                   <div className="relative">
-                    <Target className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--foreground)]/40" />
+                    <Target className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[var(--foreground)]/40 drop-shadow-sm" />
                     <input
                       type="number"
-                      placeholder="e.g. 8000"
+                      placeholder="e.g. 25000"
                       value={monthlyExpenses}
                       onChange={(e) => setMonthlyExpenses(e.target.value)}
                       className="
-                        w-full pl-11 pr-4 py-3 rounded-xl
-                        bg-white/5 border border-white/10
-                        text-[var(--foreground)] placeholder-[var(--foreground)]/30
-                        focus:outline-none focus:border-[var(--foreground)]/30
-                        transition-colors
+                        w-full pl-12 pr-4 py-4
+                        glass-input text-[var(--foreground)] font-bold text-lg
+                        placeholder-[var(--foreground)]/30
                       "
                     />
                   </div>
@@ -325,7 +310,7 @@ export default function OnboardingPage() {
               </div>
 
               {error && (
-                <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-300 text-sm">
+                <div className="p-4 rounded-2xl glass-card border-red-500/30 text-red-600 font-semibold text-sm">
                   {error}
                 </div>
               )}
@@ -333,11 +318,11 @@ export default function OnboardingPage() {
           )}
 
           {/* Navigation buttons */}
-          <div className="flex items-center justify-between mt-8 pt-6 border-t border-white/10">
+          <div className="flex items-center justify-between mt-10 pt-8 border-t border-white/40">
             {step > 0 ? (
               <button
                 onClick={() => setStep(step - 1)}
-                className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium text-[var(--foreground)]/60 hover:text-[var(--foreground)] hover:bg-white/5 transition-all"
+                className="flex items-center gap-2 px-6 py-3 rounded-2xl text-sm font-bold text-[var(--foreground)]/60 hover:text-[var(--foreground)] hover:bg-white/40 transition-all uppercase tracking-wide glass-btn border-transparent shadow-none"
               >
                 <ArrowLeft className="w-4 h-4" />
                 Back
@@ -351,10 +336,10 @@ export default function OnboardingPage() {
                 onClick={() => setStep(step + 1)}
                 disabled={!canProceed()}
                 className="
-                  flex items-center gap-2 px-6 py-2.5 rounded-xl
-                  text-sm font-semibold transition-all
-                  bg-[var(--foreground)] text-[var(--background)]
-                  hover:opacity-90 disabled:opacity-30 disabled:cursor-not-allowed
+                  flex items-center gap-3 px-8 py-4 rounded-2xl
+                  text-sm font-bold uppercase tracking-wide transition-all
+                  glass-btn-active bg-[var(--foreground)] text-[var(--background)]
+                  hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed
                 "
               >
                 Continue
@@ -365,9 +350,9 @@ export default function OnboardingPage() {
                 onClick={handleSubmit}
                 disabled={submitting}
                 className="
-                  flex items-center gap-2 px-6 py-2.5 rounded-xl
-                  text-sm font-semibold transition-all
-                  bg-[var(--foreground)] text-[var(--background)]
+                  flex items-center gap-3 px-8 py-4 rounded-2xl
+                  text-sm font-bold uppercase tracking-wide transition-all
+                  glass-btn-active bg-[var(--foreground)] text-[var(--background)]
                   hover:opacity-90 disabled:opacity-60
                 "
               >
@@ -388,7 +373,7 @@ export default function OnboardingPage() {
         </div>
 
         {/* Step indicator */}
-        <p className="text-center text-xs text-[var(--foreground)]/40 mt-4">
+        <p className="text-center font-bold text-xs uppercase tracking-widest text-[var(--foreground)]/40 mt-8">
           Step {step + 1} of {totalSteps}
         </p>
       </div>
