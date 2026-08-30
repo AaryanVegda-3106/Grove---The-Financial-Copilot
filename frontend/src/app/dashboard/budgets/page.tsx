@@ -63,6 +63,7 @@ export default function BudgetsPage() {
   const [formCategory, setFormCategory] = useState(CATEGORIES[0]);
   const [formLimit, setFormLimit] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState("");
 
   const fetchBudgets = async () => {
     try {
@@ -85,6 +86,7 @@ export default function BudgetsPage() {
     if (!formLimit || submitting) return;
 
     setSubmitting(true);
+    setSubmitError("");
     try {
       const data: BudgetCreate = {
         category: formCategory,
@@ -94,8 +96,8 @@ export default function BudgetsPage() {
       setFormLimit("");
       setShowForm(false);
       await fetchBudgets();
-    } catch {
-      // Handle error
+    } catch (err) {
+      setSubmitError(err instanceof Error ? err.message : "Failed to save budget. Please try again.");
     } finally {
       setSubmitting(false);
     }
@@ -199,6 +201,11 @@ export default function BudgetsPage() {
             </div>
           </div>
 
+          {submitError && (
+            <div className="px-4 py-3 rounded-xl bg-red-50 border border-red-200 text-red-600 text-sm font-semibold">
+              {submitError}
+            </div>
+          )}
           <button
             type="submit"
             disabled={submitting || !formLimit}

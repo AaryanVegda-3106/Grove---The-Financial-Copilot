@@ -69,33 +69,50 @@ async def list_expenses(
     user_id = user["sub"]
     db = get_supabase()
 
-    query = (
+    base_query = (
         db.table("expenses")
         .select("*", count="exact")
         .eq("user_id", user_id)
     )
 
     if start_date:
-        query = query.gte("date", start_date.isoformat())
+        base_query = base_query.gte("date", start_date.isoformat())
     if end_date:
-        query = query.lte("date", end_date.isoformat())
+        base_query = base_query.lte("date", end_date.isoformat())
     if category:
-        query = query.eq("category", category.lower().strip())
+        base_query = base_query.eq("category", category.lower().strip())
+
+    # Fetch total amount across ALL matching rows (not just the current page)
+    all_result = base_query.select("amount").execute()
+    total_amount = sum(e["amount"] for e in (all_result.data or []))
+    total_count = all_result.count or len(all_result.data or [])
+
+    # Fetch the requested page
+    page_query = (
+        db.table("expenses")
+        .select("*")
+        .eq("user_id", user_id)
+    )
+    if start_date:
+        page_query = page_query.gte("date", start_date.isoformat())
+    if end_date:
+        page_query = page_query.lte("date", end_date.isoformat())
+    if category:
+        page_query = page_query.eq("category", category.lower().strip())
 
     result = (
-        query
+        page_query
         .order("date", desc=True)
         .range(offset, offset + limit - 1)
         .execute()
     )
 
     expenses = [Expense(**e) for e in (result.data or [])]
-    total_amount = sum(e.amount for e in expenses)
 
     return ExpenseList(
         expenses=expenses,
-        total_count=result.count or len(expenses),
-        total_amount=total_amount,
+        total_count=total_count,
+        total_amount=round(total_amount, 2),
     )
 
 
@@ -108,19 +125,22 @@ async def delete_expense(
     user_id = user["sub"]
     db = get_supabase()
 
-    result = (
+    # Verify the expense exists and belongs to this user before deleting
+    check = (
         db.table("expenses")
-        .delete()
+        .select("id")
         .eq("id", expense_id)
         .eq("user_id", user_id)
         .execute()
     )
 
-    if not result.data:
+    if not check.data:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Expense not found",
         )
+
+    db.table("expenses").delete().eq("id", expense_id).eq("user_id", user_id).execute()
 
 
 # ── Budgets ──────────────────────────────────────────────────

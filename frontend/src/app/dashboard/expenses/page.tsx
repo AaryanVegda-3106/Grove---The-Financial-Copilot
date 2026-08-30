@@ -78,7 +78,9 @@ export default function ExpensesPage() {
   );
   const [formDescription, setFormDescription] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState("");
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [deleteError, setDeleteError] = useState("");
 
   const fetchExpenses = async () => {
     try {
@@ -106,6 +108,7 @@ export default function ExpensesPage() {
     if (!formAmount || submitting) return;
 
     setSubmitting(true);
+    setSubmitError("");
     try {
       const data: ExpenseCreate = {
         category: formCategory,
@@ -118,8 +121,8 @@ export default function ExpensesPage() {
       setFormDescription("");
       setShowForm(false);
       await fetchExpenses();
-    } catch {
-      // Handle error
+    } catch (err) {
+      setSubmitError(err instanceof Error ? err.message : "Failed to save expense. Please try again.");
     } finally {
       setSubmitting(false);
     }
@@ -127,11 +130,12 @@ export default function ExpensesPage() {
 
   const handleDelete = async (id: string) => {
     setDeletingId(id);
+    setDeleteError("");
     try {
       await deleteExpense(id, () => getToken());
       await fetchExpenses();
-    } catch {
-      // Handle error
+    } catch (err) {
+      setDeleteError(err instanceof Error ? err.message : "Failed to delete expense. Please try again.");
     } finally {
       setDeletingId(null);
     }
@@ -276,6 +280,11 @@ export default function ExpensesPage() {
             </div>
           </div>
 
+          {submitError && (
+            <div className="px-4 py-3 rounded-xl bg-red-50 border border-red-200 text-red-600 text-sm font-semibold">
+              {submitError}
+            </div>
+          )}
           <div className="pt-2">
             <button
               type="submit"
@@ -353,6 +362,13 @@ export default function ExpensesPage() {
               <span className="text-base">{CATEGORY_ICONS[cat]}</span> {cat}
             </button>
           ))}
+        </div>
+      )}
+
+      {/* Delete error */}
+      {deleteError && (
+        <div className="px-4 py-3 rounded-xl bg-red-50 border border-red-200 text-red-600 text-sm font-semibold">
+          {deleteError}
         </div>
       )}
 
